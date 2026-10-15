@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizSphere 3D — Main Quiz Arena</title>
+  <!-- Google Fonts: Poppins & Fredoka for 3D tactile UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient 3D Animated Background Shapes -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="shape shape-sphere-pink float-1"></div>
+    <div class="shape shape-cube-blue float-2"></div>
+    <div class="shape shape-torus-red float-3"></div>
+    <div class="shape shape-pill-pink float-4"></div>
+    <div class="shape shape-cylinder-blue float-5"></div>
+    <div class="shape shape-star-white float-6">★</div>
+    <div class="shape shape-star-white float-7">★</div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Header / Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo" title="Back to Name Screen">
+        <div class="logo-3d-box">
+          <span class="logo-icon">Q</span>
+          <div class="box-shadow-layer"></div>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Quiz<span class="text-pink">Sphere</span></span>
+          <span class="brand-badge">3D</span>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <!-- Current Challenger Badge -->
+        <div class="player-tag-pill">
+          <span class="player-avatar">💖</span>
+          <span id="header-player-name" class="player-name-text">Challenger</span>
+        </div>
+
+        <!-- Sound Effect Toggle -->
+        <button id="sound-toggle-btn" class="btn-3d btn-icon btn-white" title="Toggle Sound (Mute/Unmute)" aria-label="Toggle Sound">
+          <span class="btn-face">
+            <span id="sound-icon" class="icon">🔊</span>
+          </span>
+          <span class="btn-depth"></span>
+        </button>
+
+        <!-- Exit / Home Button -->
+        <a href="index.html" class="btn-3d btn-pill btn-white" title="Change Name / Restart">
+          <span class="btn-face">
+            <span class="icon">✕</span>
+            <span class="btn-text">Exit</span>
+          </span>
+          <span class="btn-depth"></span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-wrapper">
+    <!-- Confetti Canvas for 3D Celebrations -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- ==============================================
+         ACTIVE QUIZ VIEW
+         ============================================== -->
+    <section id="quiz-screen" class="view-screen active">
+      <!-- 3D HUD Dashboard Header -->
+      <div class="quiz-hud">
+        <!-- Progress Bar (3D Tube) -->
+        <div class="progress-bar-3d">
+          <div class="progress-track">
+            <div id="progress-fill" class="progress-fill">
+              <div class="progress-glow"></div>
+            </div>
+          </div>
+          <div class="progress-info">
+            <span id="question-tracker">Question 1/25</span>
+            <span id="section-pill-display" class="hud-pill pill-pink">💖 Part 1: Personal Trivia</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Stat Pods (Score, Streak, Section) -->
+        <div class="hud-pods-row">
+          <!-- Score Pod -->
+          <div class="hud-pod pod-score">
+            <div class="pod-face">
+              <span class="pod-icon">💎</span>
+              <div class="pod-details">
+                <span class="pod-label">QUIZ SCORE</span>
+                <span id="hud-score" class="pod-value">0</span>
+              </div>
+            </div>
+            <div class="pod-depth"></div>
+          </div>
+
+          <!-- Question Type Pod -->
+          <div class="hud-pod pod-type">
+            <div class="pod-face">
+              <span class="pod-icon" id="type-icon">⚡</span>
+              <div class="pod-details">
+                <span class="pod-label">FORMAT</span>
+                <span id="type-label" class="pod-value small-val">Multiple Choice</span>
+              </div>
+            </div>
+            <div class="pod-depth"></div>
+          </div>
+
+          <!-- Streak Pod with Fire Animation -->
+          <div class="hud-pod pod-streak">
+            <div class="pod-face">
+              <span id="streak-fire" class="pod-icon flame-icon">🔥</span>
+              <div class="pod-details">
+                <span class="pod-label">STREAK</span>
+                <span id="hud-streak" class="pod-value">0x</span>
+              </div>
+            </div>
+            <div class="pod-depth"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Question 3D Stage -->
+      <div class="question-stage">
+        <!-- 3D Floating Question Card -->
+        <div id="question-card" class="question-card-3d tilt-element">
+          <div class="card-edge-highlight"></div>
+          <div class="card-body">
+            <!-- Question Metadata Tags -->
+            <div class="question-meta-bar">
+              <span id="q-category-badge" class="badge-3d badge-pink">Personal Lore</span>
+              <span id="q-number-badge" class="badge-3d badge-blue">Q #1</span>
+            </div>
+
+            <!-- Question Prompt Text -->
+            <h2 id="question-text" class="question-title">
+              Loading questions from questions.txt...
+            </h2>
+
+            <!-- OPTION CONTAINER 1: Multiple Choice Grid -->
+            <div id="answers-container" class="answers-grid" role="group" aria-label="Answer Options">
+              <!-- Dynamically populated with 3D option buttons -->
+            </div>
+
+            <!-- OPTION CONTAINER 2: Paragraph / Textarea Input -->
+            <div id="paragraph-container" class="paragraph-input-container hidden">
+              <div class="textarea-3d-wrapper">
+                <textarea 
+                  id="paragraph-input" 
+                  placeholder="Express your honest feelings, thoughts, and memories here... write as much as your heart desires."
+                  rows="5"
+                  maxlength="2000"
+                ></textarea>
+                <div class="textarea-depth"></div>
+              </div>
+              <div class="paragraph-meta-row">
+                <span class="char-counter"><span id="char-count">0</span> / 2000 characters</span>
+                <button id="save-paragraph-btn" class="btn-3d btn-pill btn-pink">
+                  <span class="btn-face">
+                    <span>Save My Answer 💖</span>
+                    <span class="icon">➔</span>
+                  </span>
+                  <span class="btn-depth"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dynamic Answer Feedback Banner (Revealed on choice) -->
+            <div id="feedback-banner" class="feedback-banner hidden">
+              <div class="feedback-header">
+                <span id="feedback-icon" class="feedback-icon">🎉</span>
+                <h4 id="feedback-title" class="feedback-title">Brilliant! That's correct!</h4>
+              </div>
+              <p id="feedback-explanation" class="feedback-text"></p>
+            </div>
+          </div>
+          <div class="card-3d-base"></div>
+        </div>
+
+        <!-- Quiz Controls Bar -->
+        <div class="quiz-controls-bar">
+          <button id="skip-question-btn" class="btn-3d btn-pill btn-white">
+            <span class="btn-face">
+              <span>⏩ Skip Question</span>
+            </span>
+            <span class="btn-depth"></span>
+          </button>
+
+          <button id="next-question-btn" class="btn-3d btn-pill btn-pink hidden">
+            <span class="btn-face">
+              <span id="next-btn-text">Next Question</span>
+              <span class="icon">➔</span>
+            </span>
+            <span class="btn-depth"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         RESULTS & REVIEW VIEW
+         ============================================== -->
+    <section id="results-screen" class="view-screen">
+      <div class="results-3d-card tilt-element">
+        <div class="results-glow"></div>
+        <div class="card-inner">
+          <!-- 3D Heart / Trophy Celebration Showcase -->
+          <div class="trophy-stage">
+            <div class="trophy-3d-box float-gentle">
+              <div id="trophy-icon" class="trophy-emoji">💖</div>
+              <div class="trophy-sparkle-1">✦</div>
+              <div class="trophy-sparkle-2">✦</div>
+              <div class="trophy-sparkle-3">✦</div>
+              <div class="trophy-shadow"></div>
+            </div>
+            <h1 id="result-title" class="results-heading">Quiz Completed!</h1>
+            <p id="result-subtitle" class="results-subheading">
+              Thank you for sharing your thoughts and testing your knowledge, <span id="summary-player-name" class="highlight-text">Player</span>!
+            </p>
+          </div>
+
+          <!-- Dynamic Rank Badge -->
+          <div class="rank-badge-wrapper">
+            <div id="rank-badge" class="badge-3d badge-gold">
+              <span class="rank-crown">👑</span>
+              <span id="rank-title">SOULMATE CERTIFIED</span>
+            </div>
+          </div>
+
+          <!-- 3D Metric Tiles Grid -->
+          <div class="metrics-grid">
+            <!-- Final Score -->
+            <div class="metric-tile tile-pink btn-3d">
+              <div class="card-face">
+                <span class="metric-icon">💎</span>
+                <span class="metric-label">TRIVIA SCORE</span>
+                <span id="metric-score" class="metric-val">0</span>
+              </div>
+              <div class="btn-depth"></div>
+            </div>
+
+            <!-- Trivia Accuracy -->
+            <div class="metric-tile tile-blue btn-3d">
+              <div class="card-face">
+                <span class="metric-icon">🎯</span>
+                <span class="metric-label">ACCURACY</span>
+                <span id="metric-accuracy" class="metric-val">0%</span>
+              </div>
+              <div class="btn-depth"></div>
+            </div>
+
+            <!-- Paragraphs Completed -->
+            <div class="metric-tile tile-red btn-3d">
+              <div class="card-face">
+                <span class="metric-icon">✍️</span>
+                <span class="metric-label">PARAGRAPHS</span>
+                <span id="metric-paragraphs" class="metric-val">0 / 8</span>
+              </div>
+              <div class="btn-depth"></div>
+            </div>
+
+            <!-- Max Streak -->
+            <div class="metric-tile tile-white btn-3d">
+              <div class="card-face">
+                <span class="metric-icon">🔥</span>
+                <span class="metric-label">MAX STREAK</span>
+                <span id="metric-streak" class="metric-val">0</span>
+              </div>
+              <div class="btn-depth"></div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="results-action-row">
+            <button id="copy-summary-btn" class="btn-3d btn-giant btn-pink">
+              <span class="btn-face">
+                <span class="icon">📋</span>
+                <span>Copy All Answers</span>
+              </span>
+              <span class="btn-depth"></span>
+            </button>
+
+            <button id="download-summary-btn" class="btn-3d btn-giant btn-light-blue">
+              <span class="btn-face">
+                <span class="icon">💾</span>
+                <span>Download As .txt</span>
+              </span>
+              <span class="btn-depth"></span>
+            </button>
+
+            <a href="index.html" class="btn-3d btn-giant btn-white">
+              <span class="btn-face">
+                <span class="icon">🔄</span>
+                <span>Take Quiz Again</span>
+              </span>
+              <span class="btn-depth"></span>
+            </a>
+          </div>
+
+          <!-- Comprehensive Answers & Paragraphs Review Drawer -->
+          <div id="review-drawer" class="review-drawer">
+            <div class="drawer-header">
+              <h3 class="drawer-title">Complete Quiz Responses & Love Notes</h3>
+            </div>
+            <div id="review-list" class="review-items-container">
+              <!-- Dynamically populated review cards -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Notification Alert -->
+  <div id="toast-notification" class="toast-box hidden" role="status" aria-live="polite">
+    <span id="toast-icon" class="toast-icon">✨</span>
+    <span id="toast-msg" class="toast-msg">Copied to clipboard!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>

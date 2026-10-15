@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizSphere 3D — Welcome Challenger</title>
+  <!-- Google Fonts: Poppins & Fredoka for 3D tactile typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="entry-page-body">
+  <!-- Ambient 3D Animated Background Shapes -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="shape shape-sphere-pink float-1"></div>
+    <div class="shape shape-cube-blue float-2"></div>
+    <div class="shape shape-torus-red float-3"></div>
+    <div class="shape shape-pill-pink float-4"></div>
+    <div class="shape shape-cylinder-blue float-5"></div>
+    <div class="shape shape-star-white float-6">★</div>
+    <div class="shape shape-star-white float-7">★</div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-logo">
+        <div class="logo-3d-box">
+          <span class="logo-icon">Q</span>
+          <div class="box-shadow-layer"></div>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Quiz<span class="text-pink">Sphere</span></span>
+          <span class="brand-badge">3D</span>
+        </div>
+      </div>
+      <div class="header-badge-tag">
+        <span class="pill-tag">Exclusive Quiz Edition</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Center Wrapper for Name Entry -->
+  <main class="main-wrapper entry-main-wrapper">
+    <div class="hero-3d-card entry-card tilt-element">
+      <div class="card-glow"></div>
+      <div class="card-inner">
+        <!-- Floating 3D Mascot / Icon -->
+        <div class="hero-mascot-container">
+          <div class="mascot-3d float-gentle">
+            <div class="mascot-face">💖</div>
+            <div class="orbiting-tag tag-pink">3D Space</div>
+            <div class="orbiting-tag tag-blue">Personal</div>
+            <div class="orbiting-tag tag-red">Special</div>
+          </div>
+        </div>
+
+        <h1 class="hero-title">
+          Welcome to the <span class="gradient-text">Special Quiz</span>
+        </h1>
+        <p class="hero-subtitle">
+          Test your memory, share your deepest thoughts, and discover how well we know each other! Please enter your name to unlock the quiz.
+        </p>
+
+        <!-- Name Input Form -->
+        <form id="name-entry-form" class="name-entry-form" autocomplete="off">
+          <div class="input-3d-group">
+            <label for="player-name-input" class="input-label">What should I call you?</label>
+            <div class="input-3d-wrapper">
+              <span class="input-icon">✨</span>
+              <input 
+                type="text" 
+                id="player-name-input" 
+                placeholder="Type your name here..." 
+                maxlength="25" 
+                required 
+                autofocus
+                autocomplete="off"
+              >
+              <div class="input-depth"></div>
+            </div>
+            <p id="error-msg" class="input-error-msg hidden">Please enter your name to continue!</p>
+          </div>
+
+          <!-- 3D Enter / Submit Button -->
+          <div class="action-launch-wrapper">
+            <button type="submit" id="enter-quiz-btn" class="btn-3d btn-giant btn-pink pulse-attention">
+              <span class="btn-face">
+                <span class="btn-icon-start">⚡</span>
+                <span class="btn-launch-text">PRESS ENTER TO START</span>
+                <span class="btn-arrow">➔</span>
+              </span>
+              <span class="btn-depth"></span>
+            </button>
+          </div>
+
+          <div class="enter-hint">
+            <span class="hint-badge">Tip</span>
+            <span>Type your name and hit the <strong>Enter ↵</strong> key on your keyboard</span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Script for Name Entry and Redirection -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('name-entry-form');
+      const input = document.getElementById('player-name-input');
+      const errorMsg = document.getElementById('error-msg');
+      const enterBtn = document.getElementById('enter-quiz-btn');
+
+      // Check if a name was previously entered
+      const savedName = localStorage.getItem('quiz_player_name');
+      if (savedName) {
+        input.value = savedName;
+      }
+      input.focus();
+
+      function handleRedirect(name) {
+        const cleanName = name.trim();
+        if (!cleanName) {
+          errorMsg.classList.remove('hidden');
+          input.focus();
+          return;
+        }
+        errorMsg.classList.add('hidden');
+        localStorage.setItem('quiz_player_name', cleanName);
+        
+        // Add visual click effect on button
+        enterBtn.classList.add('is-pressed');
+        
+        // Redirect to main quiz page
+        setTimeout(() => {
+          window.location.href = `quiz.html?name=${encodeURIComponent(cleanName)}`;
+        }, 150);
+      }
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleRedirect(input.value);
+      });
+
+      // Also listen specifically for Enter keydown
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleRedirect(input.value);
+        }
+      });
+
+      // 3D Tilt on Desktop
+      const card = document.querySelector('.tilt-element');
+      if (card && window.matchMedia('(pointer: fine)').matches) {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = ((y - centerY) / centerY) * -4.5;
+          const rotateY = ((x - centerX) / centerX) * 4.5;
+          card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        });
+      }
+    });
+  </script>
+</body>
+</html>
